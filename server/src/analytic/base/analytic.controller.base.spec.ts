@@ -183,6 +183,28 @@ describe("Analytic", () => {
       });
   });
 
+  test("POST /analytics existing resource", async () => {
+    let agent = request(app.getHttpServer());
+    await agent
+      .post("/analytics")
+      .send(CREATE_INPUT)
+      .expect(HttpStatus.CREATED)
+      .expect({
+        ...CREATE_RESULT,
+        createdAt: CREATE_RESULT.createdAt.toISOString(),
+        updatedAt: CREATE_RESULT.updatedAt.toISOString(),
+      })
+      .then(function () {
+        agent
+          .post("/analytics")
+          .send(CREATE_INPUT)
+          .expect(HttpStatus.CONFLICT)
+          .expect({
+            statusCode: HttpStatus.CONFLICT,
+          });
+      });
+  });
+
   afterAll(async () => {
     await app.close();
   });
